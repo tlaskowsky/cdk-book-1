@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'MagicMail Development Asset Storage Stack'
+
+# Parameters allow customization at deployment time
+Parameters:
+  EnvironmentName:
+    Description: The environment name (e.g., dev, test, prod)
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - test
+      - prod
+
+Resources:
+  MagicMailAssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      # Constructing a globally unique bucket name using parameters and pseudo parameters
+      BucketName: !Sub 'magicmail-assets-cli-${EnvironmentName}-${AWS::AccountId}'
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      # Adding tags for organization and cost tracking
+      Tags:
+        - Key: Project
+          Value: MagicMail
+        - Key: Environment
+          Value: !Ref EnvironmentName # Reference the parameter value
+      # Add Lifecycle Configuration
+      LifecycleConfiguration:
+        Rules:
+          - Id: TransitionToInfrequentAccessRule
+            Status: Enabled
+            Transitions:
+              - StorageClass: STANDARD_IA # Target storage class
+                TransitionInDays: 90     # Days after object creation
+
+# Outputs provide information about the created resources
+Outputs:
+  BucketName:
+    Description: Name of the S3 bucket created
+    Value: !Ref MagicMailAssetsBucket # Get the physical name of the bucket
+    Export:
+      Name: !Sub '${AWS::StackName}-AssetsBucketName' # Export for cross-stack reference
+  BucketArn:
+    Description: ARN of the S3 bucket created
+    Value: !GetAtt MagicMailAssetsBucket.Arn # Get the ARN attribute of the bucket
+    Export:
+      Name: !Sub '${AWS::StackName}-AssetsBucketArn' # Export for cross-stack reference
