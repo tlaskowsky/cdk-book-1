@@ -24,7 +24,7 @@ Each chapter folder corresponds to the end-state code for that chapter in the bo
 
 ## 📚 Continue Your Journey
 
-Want to read?
+Want to read the book?
 
 - 📘 **Book 1** (*AWS CDK Made Easy! Build Cloud Infrastructure with TypeScript and CDK*)  
   - [Available on Kindle →](https://a.co/d/a25mc8O)
